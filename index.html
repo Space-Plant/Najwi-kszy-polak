@@ -5,23 +5,57 @@
   <title>Gra eliminacyjna</title>
   <style>
     body { font-family: sans-serif; margin: 0; padding: 1em; }
-    h1 { text-align: center; }
-    .bracket { display: flex; flex-wrap: nowrap; overflow-x: auto; }
-    .round { display: flex; flex-direction: column; margin-right: 1em; }
-    .match { margin-bottom: 1em; background: #f2f2f2; border-radius: 4px; overflow: hidden; }
-    .team { padding: 0.5em; cursor: pointer; }
-    .team.selected { background: #a5d6a7; }
-    #champion { margin-top: 2em; font-size: 1.2em; text-align: center; font-weight: bold; }
+    h1 { text-align: center; margin-bottom: 0.5em; }
+    .bracket {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1em;
+    }
+    .round {
+      display: flex;
+      flex-direction: column;
+    }
+    .round-title {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 0.5em;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+    .match {
+      display: flex;
+      margin-bottom: 0.5em;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .team {
+      flex: 1;
+      padding: 0.5em;
+      text-align: center;
+      cursor: pointer;
+      background: #f9f9f9;
+      transition: background 0.2s;
+    }
+    .team.selected {
+      background: #a5d6a7;
+    }
+    #champion {
+      margin-top: 1.5em;
+      text-align: center;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
     @media (max-width: 600px) {
-      .bracket { flex-direction: column; }
-      .round { flex-direction: row; overflow-x: auto; }
-      .match { margin-right: 1em; margin-bottom: 0; }
+      .bracket {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <h1>Gra eliminacyjna</h1>
-  <div class="bracket" id="bracket"></div>
+  <div id="bracket" class="bracket"></div>
   <div id="champion"></div>
   <script>
     const participants = [
@@ -41,28 +75,42 @@
       'Kościuszko','Paderewski',
       'Jan Paweł II','Szymborska',
       'Wałęsa','Gombrowicz'
-    ];function createBracket(list) {
+    ];const roundNames = [
+  '1/16 Finału',
+  '1/8 Finału',
+  'Ćwierćfinał',
+  'Półfinał',
+  'Finał'
+];
+
+function createBracket(list) {
   const bracket = document.getElementById('bracket');
   const rounds = [];
   let current = list.slice();
   rounds.push(current);
   while (current.length > 2) {
-    current = Array(current.length / 2).fill(null);
+    current = Array(current.length / 2).fill('');
     rounds.push(current);
   }
 
   rounds.forEach((roundTeams, roundIndex) => {
     const roundEl = document.createElement('div');
     roundEl.className = 'round';
-    const matches = roundTeams.length / 2;
-    for (let m = 0; m < matches; m++) {
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'round-title';
+    titleEl.textContent = roundNames[roundIndex] || '';
+    roundEl.appendChild(titleEl);
+
+    const matchesCount = Math.ceil(roundTeams.length / 2);
+    for (let m = 0; m < matchesCount; m++) {
       const matchEl = document.createElement('div');
       matchEl.className = 'match';
       for (let i = 0; i < 2; i++) {
         const teamEl = document.createElement('div');
         teamEl.className = 'team';
-        const name = roundTeams[m * 2 + i];
-        teamEl.textContent = name || '';
+        const name = roundTeams[m * 2 + i] || '';
+        teamEl.textContent = name;
         teamEl.addEventListener('click', () => selectTeam(roundIndex, m, i));
         matchEl.appendChild(teamEl);
       }
@@ -75,16 +123,17 @@
 function selectTeam(roundIndex, matchIndex, teamIndex) {
   const bracket = document.getElementById('bracket');
   const rounds = bracket.querySelectorAll('.round');
-  const currentMatch = rounds[roundIndex].children[matchIndex];
+  const currentMatch = rounds[roundIndex].querySelectorAll('.match')[matchIndex];
   const teams = currentMatch.querySelectorAll('.team');
   teams.forEach((team, idx) => {
     team.classList.toggle('selected', idx === teamIndex);
   });
   const winner = teams[teamIndex].textContent;
-  if (roundIndex + 1 < rounds.length) {
-    const nextMatch = rounds[roundIndex + 1].children[Math.floor(matchIndex / 2)];
-    const nextTeams = nextMatch.querySelectorAll('.team');
+  const nextRoundIndex = roundIndex + 1;
+  if (nextRoundIndex < rounds.length) {
+    const nextMatchEl = rounds[nextRoundIndex].querySelectorAll('.match')[Math.floor(matchIndex / 2)];
     const slot = matchIndex % 2;
+    const nextTeams = nextMatchEl.querySelectorAll('.team');
     nextTeams[slot].textContent = winner;
   } else {
     document.getElementById('champion').textContent = 'Zwycięzca: ' + winner;
