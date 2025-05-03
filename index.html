@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gra eliminacyjna</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1em; }
+    h1 { text-align: center; }
+    .bracket { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+    .round { display: flex; flex-direction: column; margin-right: 1em; }
+    .match { margin-bottom: 1em; background: #f2f2f2; border-radius: 4px; overflow: hidden; }
+    .team { padding: 0.5em; cursor: pointer; }
+    .team.selected { background: #a5d6a7; }
+    #champion { margin-top: 2em; font-size: 1.2em; text-align: center; font-weight: bold; }
+    @media (max-width: 600px) {
+      .bracket { flex-direction: column; }
+      .round { flex-direction: row; overflow-x: auto; }
+      .match { margin-right: 1em; margin-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Gra eliminacyjna</h1>
+  <div class="bracket" id="bracket"></div>
+  <div id="champion"></div>
+  <script>
+    const participants = [
+      'Skłodowska-Curie','Dmowski',
+      'Chrobry','Chopin',
+      'Małysz','Sienkiewicz',
+      'Prus','Szewińska',
+      'Rutkiewicz','Mickiewicz',
+      'Słowacki','Miłosz',
+      'Lewandowski','Świątek',
+      'Jagiełło','Kopernik',
+      'Piłsudski','Górski',
+      'Wajda','Mieszko I',
+      'Pilecki','Kazimierz Wielki',
+      'Żółkiewski','Popiełuszko',
+      'Jadwiga','Sobieski',
+      'Kościuszko','Paderewski',
+      'Jan Paweł II','Szymborska',
+      'Wałęsa','Gombrowicz'
+    ];function createBracket(list) {
+  const bracket = document.getElementById('bracket');
+  const rounds = [];
+  let current = list.slice();
+  rounds.push(current);
+  while (current.length > 2) {
+    current = Array(current.length / 2).fill(null);
+    rounds.push(current);
+  }
+
+  rounds.forEach((roundTeams, roundIndex) => {
+    const roundEl = document.createElement('div');
+    roundEl.className = 'round';
+    const matches = roundTeams.length / 2;
+    for (let m = 0; m < matches; m++) {
+      const matchEl = document.createElement('div');
+      matchEl.className = 'match';
+      for (let i = 0; i < 2; i++) {
+        const teamEl = document.createElement('div');
+        teamEl.className = 'team';
+        const name = roundTeams[m * 2 + i];
+        teamEl.textContent = name || '';
+        teamEl.addEventListener('click', () => selectTeam(roundIndex, m, i));
+        matchEl.appendChild(teamEl);
+      }
+      roundEl.appendChild(matchEl);
+    }
+    bracket.appendChild(roundEl);
+  });
+}
+
+function selectTeam(roundIndex, matchIndex, teamIndex) {
+  const bracket = document.getElementById('bracket');
+  const rounds = bracket.querySelectorAll('.round');
+  const currentMatch = rounds[roundIndex].children[matchIndex];
+  const teams = currentMatch.querySelectorAll('.team');
+  teams.forEach((team, idx) => {
+    team.classList.toggle('selected', idx === teamIndex);
+  });
+  const winner = teams[teamIndex].textContent;
+  if (roundIndex + 1 < rounds.length) {
+    const nextMatch = rounds[roundIndex + 1].children[Math.floor(matchIndex / 2)];
+    const nextTeams = nextMatch.querySelectorAll('.team');
+    const slot = matchIndex % 2;
+    nextTeams[slot].textContent = winner;
+  } else {
+    document.getElementById('champion').textContent = 'Zwycięzca: ' + winner;
+  }
+}
+
+createBracket(participants);
+
+  </script>
+</body>
+</html>
