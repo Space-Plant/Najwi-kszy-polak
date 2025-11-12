@@ -1,147 +1,341 @@
 <!DOCTYPE html><html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gra eliminacyjna</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Space Plant — Program nawożenia i zakwaszania borówki (odpowiedzi 1–10)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 1em; }
-    h1 { text-align: center; margin-bottom: 0.5em; }
-    .bracket {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1em;
+    :root{
+      --sp-green:#74C36A; --sp-blue:#1FB7DE; --sp-ink:#0b2540; --sp-gold:#C3922E; --bg:#f4f7f6; --card:#fff; --border:#e6eaef;
     }
-    .round {
-      display: flex;
-      flex-direction: column;
-    }
-    .round-title {
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 0.5em;
-      font-size: 0.9em;
-      text-transform: uppercase;
-    }
-    .match {
-      display: flex;
-      margin-bottom: 0.5em;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .team {
-      flex: 1;
-      padding: 0.5em;
-      text-align: center;
-      cursor: pointer;
-      background: #f9f9f9;
-      transition: background 0.2s;
-    }
-    .team.selected {
-      background: #a5d6a7;
-    }
-    #champion {
-      margin-top: 1.5em;
-      text-align: center;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-    @media (max-width: 600px) {
-      .bracket {
-        grid-template-columns: 1fr;
-      }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#333;font-family:'Roboto',Arial,sans-serif;line-height:1.65}
+    a{color:var(--sp-blue);text-decoration:none}
+    .wrap{max-width:980px;margin:0 auto;padding:20px}
+    header.header{background:linear-gradient(90deg,#004a99,var(--sp-blue));color:#fff;text-align:center;padding:44px 20px;border-bottom:5px solid var(--sp-green)}
+    header .brand{height:72px;display:block;margin:0 auto 12px;background:#fff;padding:6px;border-radius:10px}
+    header h1{margin:0;font-weight:700}
+    header .sub{opacity:.95;margin-top:6px}
+    .toc{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.06);padding:18px;margin:18px 0}
+    .toc h2{margin:0 0 8px;color:#004a99}
+    .toc ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 16px;margin:0;padding:0;list-style:none}
+    .toc a:hover{text-decoration:underline}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin:18px 0;overflow:hidden}
+    .pill{background:#e6f0ff;color:#004a99;font-weight:700;padding:14px 18px;border-bottom:1px solid #cddcf8}
+    .content{padding:18px}
+    .content p{margin:10px 0}
+    blockquote{border-left:5px solid var(--sp-blue);background:#f8fbff;padding:12px 16px;margin:12px 0;color:#425466}
+    .legend{background:#fcfdff;border-top:1px dashed var(--border);padding:12px 16px;color:#4b5a67}
+    .legend b{color:#0b3f7a}
+    .muted{color:#5b6b7a}
+    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+    th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left}
+    th{background:#f2f7ff;color:#0b3f7a}
+    tr:last-child td{border-bottom:none}
+    .note{background:#fff8ef;border-left:6px solid var(--sp-gold);padding:12px 14px;border-radius:6px}
+    .ok{background:#eefdf2;border-left:6px solid var(--sp-green);padding:12px 14px;border-radius:6px}
+    .warn{background:#fff1f1;border-left:6px solid #e87b7b;padding:12px 14px;border-radius:6px}
+    footer.footer{margin:26px 0 40px 0;text-align:center;color:#778;}
+    .small{font-size:.95em}
   </style>
 </head>
 <body>
-  <h1>Gra eliminacyjna</h1>
-  <div id="bracket" class="bracket"></div>
-  <div id="champion"></div>
-  <script>
-    const participants = [
-      'Skłodowska-Curie','Dmowski',
-      'Chrobry','Chopin',
-      'Małysz','Sienkiewicz',
-      'Prus','Szewińska',
-      'Rutkiewicz','Mickiewicz',
-      'Słowacki','Miłosz',
-      'Lewandowski','Świątek',
-      'Jagiełło','Kopernik',
-      'Piłsudski','Górski',
-      'Wajda','Mieszko I',
-      'Pilecki','Kazimierz Wielki',
-      'Żółkiewski','Popiełuszko',
-      'Jadwiga','Sobieski',
-      'Kościuszko','Paderewski',
-      'Jan Paweł II','Szymborska',
-      'Wałęsa','Gombrowicz'
-    ];const roundNames = [
-  '1/16 Finału',
-  '1/8 Finału',
-  'Ćwierćfinał',
-  'Półfinał',
-  'Finał'
-];
+  <header class="header">
+    <img class="brand" src="https://spaceplant.pl/logo-spaceplant.jpg" alt="Space Plant — logo" loading="eager" decoding="async">
+    <h1>Program nawożenia i zakwaszania borówki</h1>
+    <div class="sub">Odpowiedzi 1–10 przygotowane dla Pana Pawła · aktualizacja: <span id="today"></span></div>
+  </header>  <div class="wrap">
+    <section class="toc">
+      <h2>Spis treści</h2>
+      <ul>
+        <li><a href="#q1">1) NPK w sezonie i zbiorach — schemat</a></li>
+        <li><a href="#q2">2) Fosfor (MAP) — jak i ile</a></li>
+        <li><a href="#q3">3) Azot — forma i moment</a></li>
+        <li><a href="#q4">4) Cynk i bor — kiedy i ile</a></li>
+        <li><a href="#q5">5) Biostymulacja — scenariusze</a></li>
+        <li><a href="#q6">6) Wapń — saletra tylko uzupełniająco</a></li>
+        <li><a href="#q7">7) Fertygacja — pH i EC</a></li>
+        <li><a href="#q8">8) Kwas azotowy — dawki</a></li>
+        <li><a href="#q9">9) Mg i Ca — czy uzupełniać</a></li>
+        <li><a href="#q10">10) Zasolenie — jak nie przesolić</a></li>
+      </ul>
+    </section><!-- 1 -->
+<article id="q1" class="card">
+  <div class="pill">🧪 1) NPK w sezonie i zbiorach — praktyczny schemat nawożenia borówki</div>
+  <div class="content">
+    <p>W nawożeniu borówki kluczowe jest <b>okno działania</b> składnika. Trafiona forma w odpowiedniej fazie daje wielokrotnie lepszą efektywność.</p>
+    <h3>🌸 Okres kwitnienia i zawiązywania (kwiecień–maj)</h3>
+    <ul>
+      <li>2 tyg. przed kwitnieniem rozpocznij <b>saletrę wapniową</b> przez fertygację: <b>~12 kg/ha/tydzień × 4 tyg.</b></li>
+      <li>Równolegle małe, stałe dawki <b>MAP</b>: <b>2–3 kg/ha/tydzień</b>.</li>
+    </ul>
+    <h3>🍇 Po kwitnieniu (czerwiec–lipiec)</h3>
+    <ul>
+      <li><b>Siarczan potasu</b>: <b>12,5 kg/ha/tydzień × 4 tyg.</b> (ok. 50 kg K₂O).</li>
+      <li><b>MAP</b> w tle: <b>2–3 kg/ha/tydzień</b>.</li>
+    </ul>
+    <h3>🌿 Azot</h3>
+    <ul>
+      <li>Całość: <b>50 kg N/ha</b> (plon umiarkowany) do <b>80–100 kg N/ha</b> (silne krzewy, 20 t/ha+).</li>
+      <li><b>Siarczan amonu</b> posypowo: <b>100–120 kg/ha</b> przy zielonym pąku i <b>100–120 kg/ha</b> na przełomie maja i czerwca.</li>
+      <li><b>Mocznik</b> (kwiecień–maj): <b>7–10 kg/ha/tydzień × 2 tyg.</b></li>
+      <li><b>Koniec N</b>: ok. <b>10 lipca</b>.</li>
+    </ul>
+    <div class="note small"><b>Skuteczność:</b> posypowe ma 60–80% wykorzystania (wymywanie), fertygacja 90–95% (dokładnie w strefę korzeni).</div>
+    <blockquote class="small"><b>Wniosek:</b> pełne NPK po kwitnieniu; od lipca wygaszamy N; MAP i K w małych, stałych dawkach; <b>EC pożywki 0,8–1,2 mS/cm</b> (max ~1,4).</blockquote>
 
-function createBracket(list) {
-  const bracket = document.getElementById('bracket');
-  const rounds = [];
-  let current = list.slice();
-  rounds.push(current);
-  while (current.length > 2) {
-    current = Array(current.length / 2).fill('');
-    rounds.push(current);
-  }
+    <h3>📊 Przeliczenia — ile pierwiastków dają te nawozy</h3>
+    <table aria-label="Przeliczenia NPK z nawozów">
+      <thead><tr><th>Nawóz</th><th>Skład</th><th>Przykład dawki</th><th>Dostarczone składniki</th></tr></thead>
+      <tbody>
+        <tr><td>Saletra wapniowa</td><td>15,5% N (NO₃⁻), 26,5% CaO</td><td>12 kg/ha/tydz.</td><td><b>1,86 kg N</b> + <b>3,18 kg CaO</b> (≈2,27 kg Ca)</td></tr>
+        <tr><td>MAP</td><td>12-61-0</td><td>3 kg/ha/tydz.</td><td><b>0,36 kg N</b> + <b>1,83 kg P₂O₅</b> (≈0,80 kg P)</td></tr>
+        <tr><td>Siarczan potasu</td><td>0-0-50 (+18% S)</td><td>12,5 kg/ha/tydz.</td><td><b>6,25 kg K₂O</b> (≈5,19 kg K) + <b>2,25 kg S</b></td></tr>
+        <tr><td>Siarczan amonu</td><td>21-0-0 (+24% S)</td><td>120 kg/ha (posypowo)</td><td><b>25,2 kg N</b> + <b>28,8 kg S</b></td></tr>
+        <tr><td>Mocznik</td><td>46-0-0</td><td>10 kg/ha/tydz.</td><td><b>4,6 kg N</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend small">
+    <b>Legenda:</b> <b>EC</b> — suma soli w pożywce; <b>pH</b> — kwasowość (cel 5,2–5,6); <b>NH₄⁺</b> — azot amonowy (preferowany); <b>NO₃⁻</b> — azot azotanowy (ostrożnie); <b>fertygacja</b> — mikrodawki z wodą.
+  </div>
+</article>
 
-  rounds.forEach((roundTeams, roundIndex) => {
-    const roundEl = document.createElement('div');
-    roundEl.className = 'round';
+<!-- 2 -->
+<article id="q2" class="card">
+  <div class="pill">2) Fosfor (MAP) — kluczowy, ale trudny składnik</div>
+  <div class="content">
+    <p><b>MAP</b> sprawdza się w borówce, bo dostarcza łatwo dostępny <b>H₂PO₄⁻</b>, azot <b>NH₄⁺</b> i jest fizjologicznie kwaśny — poprawia dostępność P przy wyższym pH.</p>
+    <h3>📈 Zalecane dawki w sezonie</h3>
+    <table>
+      <thead><tr><th>Okres</th><th>Dawka</th><th>Cel</th></tr></thead>
+      <tbody>
+        <tr><td>Początek wegetacji</td><td>2–3 kg/ha/tydz.</td><td>Rozruch korzeni</td></tr>
+        <tr><td>Kwitnienie–zawiązywanie</td><td>3–4 kg/ha/tydz.</td><td>Energia i kwitnienie</td></tr>
+        <tr><td>Wzrost owocu</td><td>2–3 kg/ha/tydz.</td><td>Transport cukrów</td></tr>
+        <tr><td>Zbiory</td><td>1–2 kg/ha/tydz.</td><td>Podtrzymanie metabolizmu</td></tr>
+        <tr><td>Po zbiorach</td><td>2 × 2 kg/ha</td><td>Pąki i regeneracja</td></tr>
+      </tbody>
+    </table>
+    <p><b>Łącznie</b>: ok. <b>40–60 kg MAP/ha</b> (24–36 kg P₂O₅).</p>
+    <h3>🧮 Przykład przeliczenia</h3>
+    <div class="ok small">Aby dostarczyć <b>30 kg P₂O₅/ha</b> → <b>30 ÷ 0,61 = 49 kg MAP/ha</b> (~2,5–3,0 kg/ha/tydz. od IV do VIII).</div>
+    <h3>⚗️ Mieszanie</h3>
+    <p>Łącz z <b>siarczanem amonu</b> i <b>siarczanem potasu</b>. <b>Nie</b> mieszaj w tym samym zbiorniku z wapniem (saletra wapniowa) — powstają osady. Zastosuj zbiorniki <b>A/B</b>.</p>
+  </div>
+  <div class="legend small">
+    <b>Legenda:</b> <b>P₂O₅→P</b> mnożnik 0,436; <b>K₂O→K</b> 0,83; <b>CaO→Ca</b> 0,715.
+  </div>
+</article>
 
-    const titleEl = document.createElement('div');
-    titleEl.className = 'round-title';
-    titleEl.textContent = roundNames[roundIndex] || '';
-    roundEl.appendChild(titleEl);
+<!-- 3 -->
+<article id="q3" class="card">
+  <div class="pill">🌱 3) Azot — forma, moment i skuteczność</div>
+  <div class="content">
+    <p>Borówka preferuje <b>NH₄⁺</b>. Formy <b>NO₃⁻</b> działają szybko, ale przy wysokim pH podnoszą zasadowość ryzosfery i ograniczają mikroelementy.</p>
+    <h3>⚗️ Źródła azotu — porównanie</h3>
+    <table>
+      <thead><tr><th>Nawóz</th><th>N</th><th>Charakter</th><th>Wniosek</th></tr></thead>
+      <tbody>
+        <tr><td>Siarczan amonu</td><td>21%</td><td>100% NH₄⁺, zakwasza</td><td>Baza N</td></tr>
+        <tr><td>Saletra amonowa</td><td>34%</td><td>~50/50 NH₄⁺/NO₃⁻</td><td>Krótki impuls wiosną</td></tr>
+        <tr><td>Mocznik</td><td>46%</td><td>amid → NH₄⁺ (wolniej)</td><td>Awaryjnie / dolistnie</td></tr>
+        <tr><td>Saletra wapniowa</td><td>15,5%</td><td>100% NO₃⁻ + Ca</td><td>Unikać w glebie (pH)</td></tr>
+      </tbody>
+    </table>
+    <h3>🧭 Schemat</h3>
+    <table>
+      <thead><tr><th>Etap</th><th>Nawóz</th><th>Dawka</th><th>Sposób</th></tr></thead>
+      <tbody>
+        <tr><td>Zielony pąk</td><td>Siarczan amonu</td><td>100–120 kg/ha</td><td>posypowo</td></tr>
+        <tr><td>Kwitnienie–zawiązywanie</td><td>Saletra amonowa</td><td>60–80 kg/ha</td><td>posypowo/fertygacja</td></tr>
+        <tr><td>Maj–czerwiec</td><td>Siarczan amonu</td><td>100–120 kg/ha</td><td>posypowo</td></tr>
+        <tr><td>Koniec VI–VII</td><td>—</td><td>—</td><td>Stopniowy koniec N (~10 lipca)</td></tr>
+      </tbody>
+    </table>
+    <div class="note small">Wykorzystanie: posypowo 60–80%; fertygacja 90–95%.</div>
+  </div>
+  <div class="legend small">
+    <b>Legenda:</b> <b>NH₄⁺</b> preferowany; <b>NO₃⁻</b> ostrożnie; koniec N ≈ 10 lipca.
+  </div>
+</article>
 
-    const matchesCount = Math.ceil(roundTeams.length / 2);
-    for (let m = 0; m < matchesCount; m++) {
-      const matchEl = document.createElement('div');
-      matchEl.className = 'match';
-      for (let i = 0; i < 2; i++) {
-        const teamEl = document.createElement('div');
-        teamEl.className = 'team';
-        const name = roundTeams[m * 2 + i] || '';
-        teamEl.textContent = name;
-        teamEl.addEventListener('click', () => selectTeam(roundIndex, m, i));
-        matchEl.appendChild(teamEl);
-      }
-      roundEl.appendChild(matchEl);
-    }
-    bracket.appendChild(roundEl);
-  });
-}
+<!-- 4 -->
+<article id="q4" class="card">
+  <div class="pill">4) Cynk i bor — mikroelementy o dużym znaczeniu</div>
+  <div class="content">
+    <p>B (żywotność pyłku) + Zn (auksyny, merystemy) decydują o kwitnieniu i pąkach.</p>
+    <h3>📆 Kiedy aplikować</h3>
+    <table>
+      <thead><tr><th>Termin</th><th>Cel</th><th>Co się dzieje</th></tr></thead>
+      <tbody>
+        <tr><td>Wiosna (przed kwitnieniem)</td><td>Uderzenie w fazę podziałów</td><td>Formowanie kwiatów, start pędów</td></tr>
+        <tr><td>Jesień (po zbiorach)</td><td>Magazyn w pąkach</td><td>Zapas na wiosnę</td></tr>
+      </tbody>
+    </table>
+    <h3>⚗️ Dawki</h3>
+    <table>
+      <thead><tr><th>Składnik</th><th>Dawka roczna</th><th>Uwagi</th></tr></thead>
+      <tbody>
+        <tr><td>Bor</td><td>0,3–0,5 kg B/ha</td><td>Solubor 1–2 kg/ha/zabieg</td></tr>
+        <tr><td>Cynk</td><td>0,5–1,0 kg Zn/ha</td><td>chelatuj / 22% ZnSO₄; lepiej z aminokwasami</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend small">
+    <b>Uwaga:</b> bor — wąskie okno między niedoborem a nadmiarem; kontrola w liściu co 2–3 lata.
+  </div>
+</article>
 
-function selectTeam(roundIndex, matchIndex, teamIndex) {
-  const bracket = document.getElementById('bracket');
-  const rounds = bracket.querySelectorAll('.round');
-  const currentMatch = rounds[roundIndex].querySelectorAll('.match')[matchIndex];
-  const teams = currentMatch.querySelectorAll('.team');
-  teams.forEach((team, idx) => {
-    team.classList.toggle('selected', idx === teamIndex);
-  });
-  const winner = teams[teamIndex].textContent;
-  const nextRoundIndex = roundIndex + 1;
-  if (nextRoundIndex < rounds.length) {
-    const nextMatchEl = rounds[nextRoundIndex].querySelectorAll('.match')[Math.floor(matchIndex / 2)];
-    const slot = matchIndex % 2;
-    const nextTeams = nextMatchEl.querySelectorAll('.team');
-    nextTeams[slot].textContent = winner;
-  } else {
-    document.getElementById('champion').textContent = 'Zwycięzca: ' + winner;
-  }
-}
+<!-- 5 -->
+<article id="q5" class="card">
+  <div class="pill">🌊 5) Biostymulacja – praktyczne scenariusze</div>
+  <div class="content">
+    <h3>Standard</h3>
+    <table>
+      <thead><tr><th>Moment</th><th>Preparaty</th><th>Dawka</th><th>Cel</th></tr></thead>
+      <tbody>
+        <tr><td>70% opadniętych płatków</td><td>Algol + AmiNova 80 + mikropakiet</td><td>0,5 + 0,3 + 0,5 kg/ha</td><td>Start serii</td></tr>
+        <tr><td>Co 4–7 dni (4–5 zabiegów)</td><td>j.w.</td><td>—</td><td>Utrzymanie aktywności</td></tr>
+        <tr><td>Po zbiorach</td><td>Algol + AmiNova 80 + TrichoNova</td><td>0,5 + 0,5 kg + 1 L/ha</td><td>Regeneracja</td></tr>
+      </tbody>
+    </table>
+    <h3>Interwencyjnie (przymrozek)</h3>
+    <table>
+      <thead><tr><th>Moment</th><th>Preparaty</th><th>Dawka</th></tr></thead>
+      <tbody>
+        <tr><td>≥24 h przed</td><td>Algol + AmiNova 80</td><td>1 kg + 0,5 kg/ha</td></tr>
+        <tr><td>Po przymrozku</td><td>AmiNova 80</td><td>0,5–0,7 kg/ha</td></tr>
+      </tbody>
+    </table>
+    <h3>TrichoNova</h3>
+    <div class="small">Połowa maja: 2 L/ha, po miesiącu 1 L/ha (w kolejnych latach 1 L/ha). Fertygacja/na pas, <b>bez nawozów</b> 1 dzień przed i 2 dni po.</div>
+  </div>
+  <div class="legend small">
+    <b>Nota:</b> biostymulacja działa, jeśli pH/EC/NPK/woda są w normie.
+  </div>
+</article>
 
-createBracket(participants);
+<!-- 6 -->
+<article id="q6" class="card">
+  <div class="pill">🧊 6) Saletra wapniowa – dlaczego tylko uzupełniająco</div>
+  <div class="content">
+    <p><b>Siarczan wapnia</b> (gips) — baza: <b>~2 t/ha jesienią</b>. Wiosną uzupełniająco <b>~25 kg/ha saletry wapniowej</b> (krótko, przed kwitnieniem).</p>
+    <div class="warn small"><b>Dlaczego nie jako baza?</b> 100% N w formie NO₃⁻ → podnosi pH ryzosfery, blokuje Fe/Mn/B, krótkie okno skuteczności.</div>
+    <div class="ok small"><b>Wapń dolistnie:</b> <b>CaCl₂ 3 kg / 500 L</b> + Algol 0,5 kg + AmiNova 80 0,3 kg, co 7–10 dni w chłodniejsze dni.</div>
+  </div>
+  <div class="legend small"><b>Uwaga:</b> wapń do owocu najpewniej przez liść; w glebie – buduje tkaniki wcześniej.</div>
+</article>
 
-  </script>
-</body>
+<!-- 7 -->
+<article id="q7" class="card">
+  <div class="pill">💧 7) Zasady fertygacji – pH, EC i zdrowa równowaga</div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Parametr</th><th>Zalecany zakres</th><th>Znaczenie</th></tr></thead>
+      <tbody>
+        <tr><td>pH pożywki</td><td>5,2–5,6 (akcept. 5,0–5,8)</td><td>Dostępność mikroelementów</td></tr>
+        <tr><td>EC pożywki</td><td>0,8–1,2 mS/cm (max ~1,4)</td><td>Unikaj stresu osmotycznego</td></tr>
+        <tr><td>Alkaliczność</td><td>&lt;70 mg/L CaCO₃</td><td>Ile kwasu potrzeba</td></tr>
+        <tr><td>Temp. pożywki</td><td>10–20°C</td><td>Wpływ na pobieranie</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>Mało, ale często; 2–4 krótkie cykle dziennie.</li>
+      <li>Kontrola pH i EC (kalibracja mierników!).</li>
+      <li>Zbiorniki A/B — <b>MAP ≠ Ca</b> (unikaj osadów).</li>
+      <li>Drain ~10–20% wyżej niż pożywka.</li>
+    </ul>
+  </div>
+  <div class="legend small"><b>Wskazówka:</b> borówka szybciej reaguje na zmianę pH niż na ilość nawozu.</div>
+</article>
+
+<!-- 8 -->
+<article id="q8" class="card">
+  <div class="pill">⚗️ 8) Kwas azotowy – po co, jak i ile</div>
+  <div class="content">
+    <p>Kwas neutralizuje <b>alkaliczność (HCO₃⁻)</b> wody. To ona, a nie samo pH, decyduje o dawce.</p>
+    <table>
+      <thead><tr><th>Parametr</th><th>Zakres</th><th>Uwaga</th></tr></thead>
+      <tbody>
+        <tr><td>Docelowe pH wody</td><td>5,2–5,6</td><td>Do mieszania z nawozami</td></tr>
+        <tr><td>Stężenie HNO₃</td><td>53% lub 67%</td><td>Im wyższe %, tym mniej L</td></tr>
+      </tbody>
+    </table>
+    <h3>🧪 Przykład (67% HNO₃)</h3>
+    <div class="small">Alkaliczność 200 mg/L CaCO₃, przepływ 10 m³/h → <b>~80–100 mL/m³</b> (czyli <b>0,8–1,0 L/h</b>).</div>
+    <h3>Bezpieczeństwo</h3>
+    <div class="warn small">Zawsze <b>kwas do wody</b>, zbiornik PE, zawór zwrotny, wentylacja, rękawice. Najpierw zakwaszenie, potem nawozy.</div>
+    <div class="note small">Orientacyjnie: 40–60 L/ha/sezon (twarde wody 80–100 L/ha), zależnie od HCO₃⁻ i nawadniania.</div>
+  </div>
+  <div class="legend small"><b>Wskazówka:</b> dawkę ustalisz dokładnie testem miareczkowania lub kalkulatorem.</div>
+</article>
+
+<!-- 9 -->
+<article id="q9" class="card">
+  <div class="pill">⚙️ 9) Siarczan magnezu i wapnia — czy warto?</div>
+  <div class="content">
+    <h3>Magnez (Mg)</h3>
+    <ul>
+      <li>Niedobór przy wysokim K (antagonizm). Objaw: chlorozy między nerwami na starszych liściach.</li>
+      <li>Uzupełnianie: fertygacja <b>5–10 kg/ha</b> porcjami; dolistnie <b>0,3–0,5%</b> (2–3 kg/ha).</li>
+      <li>Forma: <b>MgSO₄·7H₂O</b> — dobra rozpuszczalność.</li>
+    </ul>
+    <h3>Wapń (Ca)</h3>
+    <ul>
+      <li>Baza: <b>gips 2 t/ha jesienią</b> (bez zmiany pH, poprawa struktury).</li>
+      <li>Sezon: dolistnie <b>CaCl₂ 3 kg/500 L</b> + Algol + AmiNova 80.</li>
+    </ul>
+    <div class="ok small"><b>Proporcje:</b> utrzymuj <b>K : Mg ≈ 3 : 1</b>. Ca : Mg ≈ 3 : 1; Ca : K ≈ 1 : 2.</div>
+  </div>
+  <div class="legend small"><b>Uwaga:</b> nadmiar K „wypycha” Mg; analizuj liść, nie tylko glebę.
+  </div>
+</article>
+
+<!-- 10 -->
+<article id="q10" class="card">
+  <div class="pill">⚡ 10) Zasolenie gleby – jak nie przesolić borówki</div>
+  <div class="content">
+    <p><b>EC</b> to suma rozpuszczonych soli. Zbyt wysokie EC → odwrócona osmoza (gleba „wyciąga” wodę z korzeni).</p>
+    <table>
+      <thead><tr><th>Pomiar</th><th>Optimum</th><th>Uwaga</th></tr></thead>
+      <tbody>
+        <tr><td>EC wody</td><td>0,5–0,8 mS/cm</td><td>&gt;1,0 mS/cm — ostrzeżenie</td></tr>
+        <tr><td>EC pożywki</td><td>0,8–1,2 mS/cm</td><td>&gt;1,4 mS/cm — ryzyko stresu</td></tr>
+        <tr><td>EC gleby (1:1)</td><td>0,7–1,0 mS/cm</td><td>&gt;1,2 mS/cm — spłucz</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>Mikrodawki częściej; kontrola pH/EC w pożywce i drenażu.</li>
+      <li>Co 2–3 tyg. <b>płukanie</b> samą zakwaszoną wodą (pH 5,2–5,5).</li>
+      <li>Unikaj Na i Cl; badaj wodę co sezon.</li>
+    </ul>
+  </div>
+  <div class="legend small"><b>Wskazówka:</b> utrzymuj EC pożywki 0,8–1,2; raz w miesiącu przepłucz glebę.</div>
+</article>
+
+<!-- Podsumowanie roczne -->
+<article class="card">
+  <div class="pill">📦 Podsumowanie roczne — orientacyjne zakresy czystych składników</div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Składnik</th><th>Zakres (typowy)</th><th>Źródła główne</th></tr></thead>
+      <tbody>
+        <tr><td>N</td><td>50–100 kg/ha</td><td>Siarczan amonu, saletra amonowa, MAP, mocznik (krótko)</td></tr>
+        <tr><td>P₂O₅</td><td>20–40 kg/ha</td><td>MAP</td></tr>
+        <tr><td>K₂O</td><td>60–120 kg/ha</td><td>Siarczan potasu</td></tr>
+        <tr><td>Ca</td><td>zależnie od gleby</td><td>Gips (2 t/ha jesienią), CaCl₂ dolistnie</td></tr>
+        <tr><td>Mg</td><td>uzupełniająco wg analizy</td><td>MgSO₄·7H₂O</td></tr>
+      </tbody>
+    </table>
+    <div class="muted small">Finalne dawki koryguj na podstawie: analizy wody (pH, HCO₃⁻, EC), gleby oraz analizy liści (środek lata).</div>
+  </div>
+</article>
+
+<footer class="footer">Space Plant · przygotował: Marceli Dubczyk · kontakt: pawelgniadek85@gmail.com</footer>
+
+  </div>  <script>
+    const d=new Date();document.getElementById('today').textContent=d.toLocaleDateString('pl-PL',{year:'numeric',month:'long',day:'numeric'});
+    document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{const id=a.getAttribute('href');if(id&&id.startsWith('#')){e.preventDefault();document.querySelector(id)?.scrollIntoView({behavior:'smooth',block:'start'});}}));
+  </script></body>
 </html>
